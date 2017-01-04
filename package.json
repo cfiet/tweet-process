@@ -1,0 +1,44 @@
+{
+  "name": "tweet-process",
+  "version": "1.0.0",
+  "description": "Processing methods for fetched tweets",
+  "main": "dist/lib/index.js",
+  "scripts": {
+    "test": "mocha -c dist/test/**/*.test.js",
+    "postinstall": "typings install",
+    "build": "tsc",
+    "prestart": "npm run build",
+    "start": "node dist/index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cfiet/tweet-process.git"
+  },
+  "author": "Maciej Makowski",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/cfiet/tweet-process/issues"
+  },
+  "homepage": "https://github.com/cfiet/tweet-process#readme",
+  "dependencies": {
+    "amqplib": "^0.5.1",
+    "dotenv": "^2.0.0",
+    "lodash": "^4.17.3",
+    "natural": "^0.4.0",
+    "pg-promise": "^5.5.0",
+    "prom-client": "git+https://github.com/siimon/prom-client.git",
+    "rabbit.js": "^0.4.4",
+    "rxjs": "^5.0.2",
+    "twitter": "^1.7.0",
+    "when": "^3.6.4",
+    "winston": "^2.3.0",
+    "yargs": "^6.5.0"
+  },
+  "devDependencies": {
+    "chai": "^3.5.0",
+    "mocha": "^3.2.0",
+    "tslint": "^4.2.0",
+    "typemoq": "^1.0.3",
+    "typescript": "^2.1.4"
+  }
+}

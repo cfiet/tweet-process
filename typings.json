@@ -1,0 +1,20 @@
+{
+  "name": "tweet-process",
+  "dependencies": {
+    "Rx": "file:node_modules/rxjs/Rx.d.ts",
+    "amqplib": "registry:npm/amqplib#0.4.1+20160726143451",
+    "dotenv": "registry:dt/dotenv#2.0.0+20161103000434",
+    "lodash": "registry:npm/lodash#4.0.0+20161015015725",
+    "natural": "registry:dt/natural#0.2.1+20160803221903",
+    "rabbit.js": "registry:dt/rabbit.js#0.4.2+20160727010356",
+    "when": "registry:npm/when#2.4.0+20160723033700",
+    "winston": "registry:dt/winston#0.0.0+20161122193333",
+    "yargs": "registry:npm/yargs#5.0.0+20160907000723"
+  },
+  "devDependencies": {
+    "chai": "registry:npm/chai#3.5.0+20160723033700"
+  },
+  "globalDependencies": {
+    "when": "registry:dt/when#2.4.0+20161119044246"
+  }
+}
