@@ -5,28 +5,33 @@ export interface TransferMessage {
 }
 
 export interface Serializer<TContent> {
-  contentType: string;
+  isSupported(contentType: string): boolean;
   serialize(data: TContent, encoding?: string): TransferMessage;
   deserialize(message: TransferMessage): TContent;
 }
 
+const JSON_CONTENT_TYPE = "application/json";
+
 export class JsonSerializer<TContent> implements Serializer<TContent> {
-  public contentType: string = "application/json";
   public prettyfy: boolean = false;
+
+  public isSupported(contentType: string) {
+    return JSON_CONTENT_TYPE.toLowerCase() === (contentType || "").toLowerCase();
+  }
 
   public serialize(data: TContent, encoding: string = "utf8"): TransferMessage {
     let textContet = JSON.stringify(data, undefined, !this.prettyfy ? undefined : 2);
     let content = new Buffer(textContet, encoding);
 
     return {
-      contentType: this.contentType,
+      contentType: JSON_CONTENT_TYPE,
       contentEncoding: encoding,
       content
     };
   }
 
   public deserialize(message: TransferMessage): TContent {
-    if (message.contentType.toLowerCase() !== this.contentType) {
+    if (!this.isSupported(message.contentType)) {
       throw new Error(`Unsupported content type: ${message.contentType}`);
     }
     let textContent = message.content.toString(message.contentEncoding);

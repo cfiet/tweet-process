@@ -8,7 +8,7 @@ import { TwitterOptions, fetchTweets } from './twitter';
 export { DefaultMetricsOptions } from '../common/metrics';
 export { DefaultExchangeSinkOptions } from './queue';
 
-config({ silent: true, path: process.env.TWEET_PROCESS_DOTENV_FILE });
+config({ silent: true, path: process.env.TWEET_FETCH_DOTENV_FILE });
 
 export interface FetchOptions {
   metrics: MetricsOptions,

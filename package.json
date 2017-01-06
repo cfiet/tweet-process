@@ -22,12 +22,11 @@
   "homepage": "https://github.com/cfiet/tweet-process#readme",
   "dependencies": {
     "amqplib": "^0.5.1",
+    "cluster-service": "^2.0.0",
     "dotenv": "^2.0.0",
     "lodash": "^4.17.3",
-    "natural": "^0.4.0",
     "pg-promise": "^5.5.0",
     "prom-client": "git+https://github.com/siimon/prom-client.git",
-    "rabbit.js": "^0.4.4",
     "rxjs": "^5.0.2",
     "twitter": "^1.7.0",
     "when": "^3.6.4",

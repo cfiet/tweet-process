@@ -6,14 +6,12 @@ import * as When from 'when';
 import { Tweet } from '../common/data';
 import { createLogger } from '../common/logging';
 import { Counter } from '../common/metrics';
-import { Serializer, JsonSerializer } from '../common/queue/serialization';
+import { Serializer, JsonSerializer, QueueOptions, ChannelOptions, createChannel, ExchangeType } from '../common/queue';
 
 export type PromiseOrWhen<T> = Promise<T> | When.Promise<T>;
-export type ExchangeType = "direct" | "fanout" | "topic";
-export interface ExchangeSinkOptions {
-  queueUrl: string;
-  appId: string;
-  name: string;
+
+export interface ExchangeSinkOptions extends QueueOptions, ChannelOptions {
+  exchangeName: string;
   type: ExchangeType;
   assert: boolean;
   messageType: string;
@@ -22,10 +20,11 @@ export interface ExchangeSinkOptions {
 export class DefaultExchangeSinkOptions implements ExchangeSinkOptions {
   public type: ExchangeType = "topic";
   public assert = true;
+  public prefetch: number;
   
   constructor(
     public queueUrl: string,
-    public name: string,
+    public exchangeName: string,
     public messageType: string = null,
     public appId: string = "tweet-process"
   ) { }
@@ -42,7 +41,7 @@ export class ExchangeSink<TData> {
 
   public publish(data: TData, routingKey: string, messageId: string, correlationId?: string) {
     const message = this._serializer.serialize(data);
-    this._channel.publish(this._options.name, routingKey, message.content, {
+    this._channel.publish(this._options.exchangeName, routingKey, message.content, {
       contentType: message.contentType,
       contentEncoding: message.contentEncoding,
       timestamp: Date.now(),
@@ -61,31 +60,20 @@ export class ExchangeSink<TData> {
     }
   }
 
-  public static create<TData>(options: ExchangeSinkOptions): PromiseOrWhen<ExchangeSink<TData>> {
-    const { hostname, port, href } =  parse(options.queueUrl);
-    const logger = createLogger("fetch", "queue", `${hostname}:${port}`);
-
-    logger.info("Connectiong to queue", { hostname, port });
-    return connect(options.queueUrl).then(conn => {
-      logger.info("Connected to queue, creating channel");
-      return conn.createChannel().then(chan => {
+  public static create<TData>(options: ExchangeSinkOptions): Promise<ExchangeSink<TData>> {
+    return createChannel(options).then((ctx) => {
         if (options.assert) {
-          logger.info("Ensuring target exchange exists", { exchangeName: options.name });
-          return chan.assertExchange(options.name, options.type)
-            .then(() => chan);
+          ctx.logger.info("Ensuring target exchange exists", { exchangeName: options.exchangeName });
+          return ctx.channel.assertExchange(options.exchangeName, options.type)
+            .then(() => ctx);
         }
 
-        logger.info("Checking, if target exchange exists", { exchangeName: options.name });
-        return chan.checkExchange(options.name)
-          .then(() => chan);
-      })
-      .then(chan => {
-        return new ExchangeSink<TData>(conn, chan, options);
-      });
-    }).catch(error => {
-      logger.error(`An error occured while creating tweets target: ${error.message}`, { error });
-      return When.reject<ExchangeSink<TData>>(error);
+        ctx.logger.info("Checking, if target exchange exists", { exchangeName: options.exchangeName });
+        return ctx.channel.checkExchange(options.exchangeName)
+          .then(() => ctx);
+    })
+    .then(({ connection, channel, logger }) => {
+      return new ExchangeSink<TData>(connection, channel, options);
     });
   }
-  
 }
