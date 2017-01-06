@@ -1,6 +1,28 @@
-import { createLogger } from '../common/logging';
-import { FetchOptions, startFetching, DefaultExchangeSinkOptions, DefaultMetricsOptions } from './index';
 
+import * as yargs from "yargs";
+
+import { createLogger } from './common/logging';
+import { FetchOptions, startFetching, DefaultExchangeSinkOptions, DefaultMetricsOptions } from './fetch/main';
+import { metricsOptions, queueOptions, twitterOptions, parseMetricsArgv, parseQueueArgv, parseTwitterArgv } from './options';
+
+export const fetchCommand = <yargs.CommandModule> {
+  command: "fetch <screenName>",
+  describe: "Fetches Tweets of a given screen name",
+  builder: Object.assign({}, metricsOptions, queueOptions, twitterOptions),
+  handler: (argv) => {
+    console.log(argv);
+    process.exit(0);
+  } 
+};
+
+yargs.env("TWEET_PROC")
+  .command(fetchCommand)
+  .demand(1)
+  .help("help")
+  .alias("help", "?")
+  .argv;
+
+/*
 const logger = createLogger('fetch', 'worker');
 
 const options: FetchOptions = {
@@ -32,3 +54,4 @@ startFetching(options).then((count) => {
   logger.error(`An error occured while fetching tweets: ${error.message}`, { error });
   process.exit(-1);
 });
+*/
