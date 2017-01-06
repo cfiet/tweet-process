@@ -8,34 +8,26 @@ export const metricsOptions: yargs.Builder = {
     require: true,
     group: "Metrics"
   },
-  "metrics-job-name": {
-    type: "string",
-    require: true,
-    group: "Metrics"
-  },
   "metrics-push-interval": {
     type: "number",
-    require: true,
     default: 1000,
     group: "Metrics"
   },
   "metrics-blacklist": {
     type: "array",
-    require: false,
     default: [],
     group: "Metrics"
   },
   "metrics-interval": {
     type: "number",
-    require: false,
     group: "Metrics"
   },
 };
 
-export function parseMetricsArgv(argv: any): MetricsOptions {
+export function parseMetricsArgv(argv: any, jobName: string): MetricsOptions {
   return {
+    jobName,
     pushgatewayUrl: argv.metricsPushgatewayUrl,
-    jobName: argv.metricsJobName,
     pushInterval: argv.metricsPushInterval,
     defaultBlacklist: argv.metricsBlacklist,
     interval: argv.metricsInterval

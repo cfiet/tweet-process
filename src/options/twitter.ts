@@ -37,7 +37,7 @@ export function parseTwitterArgv(argv: any, screenName: string): TwitterOptions 
     consumerSecret: argv.twitterConsumerSecret,
     accessTokenKey: argv.twitterAccessTokenKey,
     accessTokenSecret: argv.twitterAccessTokenSecret,
-    maxBatchSize: argv.maxBatchSize,
+    maxBatchSize: argv.twitterMaxBatchSize,
     screenName
   };
 }

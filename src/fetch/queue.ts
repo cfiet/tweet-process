@@ -30,6 +30,11 @@ export class DefaultExchangeSinkOptions implements ExchangeSinkOptions {
   ) { }
 }
 
+export interface PublishOptions {
+  correlationId?: string;
+  headers?: { [key: string]: string|number|boolean };
+}
+
 export class ExchangeSink<TData> {
   constructor(
     private _connection: Connection,
@@ -39,16 +44,18 @@ export class ExchangeSink<TData> {
   ) {
   }
 
-  public publish(data: TData, routingKey: string, messageId: string, correlationId?: string) {
+  public publish(data: TData, routingKey: string, messageId: string, options: PublishOptions = {}) {
     const message = this._serializer.serialize(data);
+    const { headers, correlationId } = options;
     this._channel.publish(this._options.exchangeName, routingKey, message.content, {
       contentType: message.contentType,
       contentEncoding: message.contentEncoding,
       timestamp: Date.now(),
-      messageId: messageId,
-      correlationId: correlationId,
       appId: this._options.appId,
-      type: this._options.messageType
+      type: this._options.messageType,
+      messageId,
+      correlationId,
+      headers
     });
   }
 

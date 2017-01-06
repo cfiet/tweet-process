@@ -6,7 +6,7 @@ import { ExchangeSink, ExchangeSinkOptions, DefaultExchangeSinkOptions } from '.
 import { TwitterOptions, fetchTweets } from './twitter';
 
 export { DefaultMetricsOptions } from '../common/metrics';
-export { DefaultExchangeSinkOptions } from './queue';
+export { DefaultExchangeSinkOptions, ExchangeSinkOptions } from './queue';
 
 config({ silent: true, path: process.env.TWEET_FETCH_DOTENV_FILE });
 
@@ -27,7 +27,12 @@ export async function startFetching(options: FetchOptions) {
         tweet,
         `tweet.${options.twitter.screenName}`,
         tweet.id.toString(),
-        tweet.id.toString()
+        {
+          correlationId: tweet.id.toString(),
+          headers: {
+            "screenName": options.twitter.screenName
+          }
+        }
       );
     })
     .count()
