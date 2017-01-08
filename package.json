@@ -38,6 +38,7 @@
     "mocha": "^3.2.0",
     "tslint": "^4.2.0",
     "typemoq": "^1.0.3",
-    "typescript": "^2.1.4"
+    "typescript": "^2.1.4",
+    "typings": "^2.1.0"
   }
 }
