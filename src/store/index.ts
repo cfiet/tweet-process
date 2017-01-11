@@ -5,20 +5,19 @@ import { Tweet } from '../common/data';
 import { createLogger } from '../common/logging';
 import { MetricsClient, MetricsOptions, DefaultMetricsOptions, Counter } from '../common/metrics';
 
+import { DatabaseOptions } from '../options';
 import { SourceQueue, SourceQueueOptions, IncomingMessage } from './queue';
+
+export { SourceQueueOptions } from './queue';
 
 config({ silent: true, path: process.env.TWEET_STORE_DOTENV_FILE });
 
 type TweetStatus = "inserted" | "ignored";
 
-export interface ITweetStoreOptions {
+export interface TweetStoreOptions {
   queue: SourceQueueOptions;
   database: DatabaseOptions;
   metrics: MetricsOptions;
-}
-
-export interface DatabaseOptions {
-  connectionString: string;
 }
 
 const storeServiceInstanceCounter = new Counter(
@@ -36,6 +35,7 @@ const logger = createLogger("store", "index");
 
 function handleTweet(
   tweet: Tweet,
+  screenName: string,
   database: pgpromise.IConnected<any>
 ): Promise<TweetStatus> {
   return database.tx(async (trans: pgpromise.ITask<any>) => {
@@ -52,8 +52,8 @@ function handleTweet(
     if (status === "inserted") {
       await trans.query({
         name: "insert-tweet",
-        text: "INSERT INTO raw_tweets (tweet_id, text) VALUES ($1, $2)",
-        values: [tweet.id, tweet]
+        text: "INSERT INTO raw_tweets (tweet_id, screen_name, text) VALUES ($1, $2, $3)",
+        values: [tweet.id, screenName, tweet]
       });
     }
     return status;
@@ -78,7 +78,7 @@ function handleTweet(
   })
 }
 
-export function startStoreService(options: ITweetStoreOptions): Promise<{ stop: () => Promise<void>}> {
+export function startStoreService(options: TweetStoreOptions): Promise<{ stop: () => Promise<void>}> {
   const connectionFactory = pgpromise({
     capSQL: true
   });
@@ -98,7 +98,7 @@ export function startStoreService(options: ITweetStoreOptions): Promise<{ stop: 
       .finally(async () => 
         await source.close()
       ).flatMap(tweetMessage => 
-        handleTweet(tweetMessage.content, database).then(status => {
+        handleTweet(tweetMessage.content, <string>tweetMessage.headers["screenName"], database).then(status => {
           tweetMessage.ack();
           return tweetMessage;
         })

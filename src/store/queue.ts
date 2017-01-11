@@ -32,6 +32,7 @@ export interface IncomingMessage<TData> {
   readonly correlationId: string;
   readonly timestamp: number;
   readonly content: TData;
+  readonly headers: { [key: string]: string|number|boolean };
   ack(): void;
   nack(): void;
 }
@@ -53,6 +54,10 @@ class IncomingRabbitMessage<TData> implements IncomingMessage<TData> {
 
   get timestamp () {
     return this._message.properties.timestamp;;
+  }
+
+  get headers () {
+    return this._message.properties.headers;
   }
 
   private _content: TData;
