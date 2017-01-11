@@ -13,11 +13,11 @@ type TweetStatus = "inserted" | "ignored";
 
 export interface ITweetStoreOptions {
   queue: SourceQueueOptions;
-  database: IDatabaseOptions;
+  database: DatabaseOptions;
   metrics: MetricsOptions;
 }
 
-export interface IDatabaseOptions {
+export interface DatabaseOptions {
   connectionString: string;
 }
 
