@@ -28,7 +28,7 @@ const storeServiceInstanceCounter = new Counter(
 const storeServiceTweetsCounter = new Counter(
   "tweetprocess_tweets_stored",
   "Number of tweets stored",
-  ["userId", "storeStatus"]
+  ["userId", "screenName", "storeStatus"]
 );
 
 const logger = createLogger("store", "index");
@@ -58,7 +58,7 @@ function handleTweet(
     }
     return status;
   }).then((status) => {
-    storeServiceTweetsCounter.labels(tweet.user.id.toString(), status).inc();
+    storeServiceTweetsCounter.labels(tweet.user.id.toString(), screenName, status).inc();
     const context = { tweetId: tweet.id, userId: tweet.user.id };
     switch (status) {
     case "inserted":
