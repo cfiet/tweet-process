@@ -39,10 +39,10 @@ function handleTweet(
   database: pgpromise.IConnected<any>
 ): Promise<TweetStatus> {
   return database.tx(async (trans: pgpromise.ITask<any>) => {
-    const result: { count: number } = await trans.oneOrNone({
+    const result = await trans.one({
       name: "check-tweet",
-      text: "SELECT COUNT(*) FROM raw_tweets WHERE tweet_id = $1",
-      values: [tweet.id]
+      text: "SELECT CAST(COUNT(tweet_id) AS INT) FROM raw_tweets WHERE tweet_id = $1",
+      values: [tweet.id],
     });
 
     const status: TweetStatus = result.count
@@ -52,7 +52,7 @@ function handleTweet(
     if (status === "inserted") {
       await trans.query({
         name: "insert-tweet",
-        text: "INSERT INTO raw_tweets (tweet_id, screen_name, text) VALUES ($1, $2, $3)",
+        text: "INSERT INTO raw_tweets (tweet_id, screen_name, content) VALUES ($1, $2, $3)",
         values: [tweet.id, screenName, tweet]
       });
     }
@@ -75,6 +75,9 @@ function handleTweet(
     }
 
     return status;
+  }).catch(error => {
+    logger.error(`Error while processing tweet ${tweet.id}: ${error.message}`, { error });
+    return Promise.reject(error);
   })
 }
 

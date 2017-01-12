@@ -72,13 +72,13 @@ export class MetricsClient {
 
   private _pushStats(): Promise<void> {
     return new Promise<void>((resolve,reject) => {
-      this._logger.info(`Pushing stats to Pushgateway`, this._params);
+      this._logger.debug(`Pushing stats to Pushgateway`, this._params);
       this._pushgateway.pushAdd(this._params, (error: Error) => {
         if (error) {
           this._logger.error(`An error occured while pushing stats to Pushgateway: ${error.message}`, { error, params: this._params })
           return reject(error);
         }
-        this._logger.info(`Successfully pushed stats to Pushgateway`);
+        this._logger.debug(`Successfully pushed stats to Pushgateway`);
         return resolve();
       });
     });
